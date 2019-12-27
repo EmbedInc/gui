@@ -1,6 +1,9 @@
 {   Private include file for the GUI library.
 }
-%include 'base.ins.pas';
+%include 'sys.ins.pas';
+%include 'util.ins.pas';
+%include 'string.ins.pas';
+%include 'file.ins.pas';
 %include 'img.ins.pas';
 %include 'math.ins.pas';
 %include 'vect.ins.pas';
