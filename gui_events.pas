@@ -71,7 +71,7 @@ begin
     ord(gui_key_mouse_left_k));
 
   rend_set.event_req_key_on^ (         {enable mouse right button events}
-    rend_get.key_sp^ (rend_key_sp_pointer_k, 2), {RENDlib key ID}
+    rend_get.key_sp^ (rend_key_sp_pointer_k, 3), {RENDlib key ID}
     ord(gui_key_mouse_right_k));
 
   rend_set.event_req_key_on^ (         {enable TAB key}
