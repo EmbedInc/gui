@@ -69,10 +69,21 @@ begin
   rend_set.event_req_key_on^ (         {enable mouse left button events}
     rend_get.key_sp^ (rend_key_sp_pointer_k, 1), {RENDlib key ID}
     ord(gui_key_mouse_left_k));
-
-  rend_set.event_req_key_on^ (         {enable mouse right button events}
-    rend_get.key_sp^ (rend_key_sp_pointer_k, 3), {RENDlib key ID}
-    ord(gui_key_mouse_right_k));
+  if rend_get.key_sp^ (rend_key_sp_pointer_k, 3) = rend_key_none_k
+    then begin                         {pointer only has 2 or fewer keys}
+      rend_set.event_req_key_on^ (     {enable mouse right button events}
+        rend_get.key_sp^ (rend_key_sp_pointer_k, 2), {RENDlib key ID}
+        ord(gui_key_mouse_right_k));
+      end
+    else begin                         {pointer has 3 or more keys}
+      rend_set.event_req_key_on^ (     {enable mouse middle button events}
+        rend_get.key_sp^ (rend_key_sp_pointer_k, 2), {RENDlib key ID}
+        ord(gui_key_mouse_mid_k));
+      rend_set.event_req_key_on^ (     {enable mouse right button events}
+        rend_get.key_sp^ (rend_key_sp_pointer_k, 3), {RENDlib key ID}
+        ord(gui_key_mouse_right_k));
+      end
+    ;
 
   rend_set.event_req_key_on^ (         {enable TAB key}
     gui_key_alpha_id (chr(9)),

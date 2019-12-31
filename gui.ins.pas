@@ -111,6 +111,7 @@ type
     gui_key_end_k,                     {key to jump to right edge}
     gui_key_del_k,                     {DELETE character to right of cursor key}
     gui_key_mouse_left_k,              {left mouse button}
+    gui_key_mouse_mid_k,               {middle mouse button}
     gui_key_mouse_right_k,             {right mouse button}
     gui_key_tab_k,                     {TAB key}
     gui_key_esc_k,                     {ESCAPE key}
