@@ -5,6 +5,8 @@ const
   gui_childblock_size_k = 8;           {number of child windows per list block}
 
 type
+  gui_win_p_t = ^gui_win_t;            {pointer to window object}
+
   gui_ixy_t = record                   {one integer X,Y coordinate}
     x, y: sys_int_machine_t;
     end;
@@ -23,8 +25,6 @@ type
     lx, rx: real;                      {left and right edges}
     by, ty: real;                      {bottom and top edges}
     end;
-
-  gui_win_p_t = ^gui_win_t;            {pointer to window object}
 
   gui_selres_k_t = (                   {result of user selection process}
     gui_selres_perf_k,                 {valid selection, action performed}
@@ -60,15 +60,16 @@ type
     next_p: gui_childblock_p_t;        {pnt to next block in list, NIL = none}
     end;
 
+  gui_win_clip_frame_p_t = ^gui_win_clip_frame_t;
   gui_win_clip_frame_t = record        {window object clip stack frame}
     rect: gui_cliprect_t;              {draw in, clip out rectangle}
     end;
-  gui_win_clip_frame_p_t = ^gui_win_clip_frame_t;
 
   gui_wdraw_k_t = (                    {window drawing management flags}
     gui_wdraw_done_k);                 {done drawing this window}
   gui_wdraw_t = set of gui_wdraw_k_t;  {all the flags in one set}
 
+  gui_win_all_p_t = ^gui_win_all_t;
   gui_win_all_t = record               {info common to all windows with same root}
     root_p: gui_win_p_t;               {pointer to root window}
     rend_dev: rend_dev_id_t;           {RENDlib device ID for this set of windows}
@@ -78,7 +79,6 @@ type
     drawing: boolean;                  {TRUE when drawing in progress}
     low_reached: boolean;              {lowest draw window has been drawn}
     end;
-  gui_win_all_p_t = ^gui_win_all_t;
 
   gui_win_t = record                   {object for one GUI library window}
     parent_p: gui_win_p_t;             {pointer to parent window, NIL = this is root}
@@ -161,6 +161,7 @@ type
     gui_menflag_window_k);             {display config determined, window exists}
   gui_menflags_t = set of gui_menflag_k_t;
 
+  gui_menu_p_t = ^gui_menu_t;
   gui_menu_t = record                  {object for one GUI library menu}
     mem_p: util_mem_context_p_t;       {pnt to mem context private to this menu}
     parent_p: gui_win_p_t;             {pointer to parent window}
@@ -176,7 +177,6 @@ type
     form: gui_menform_k_t;             {menu layout format}
     evhan: gui_evhan_k_t;              {event useage result from last SELECT}
     end;
-  gui_menu_p_t = gui_menu_t;
 
   gui_mmsg_t = record                  {object for reading menu entries message}
     conn: file_conn_t;                 {descriptor to message connection}
@@ -188,6 +188,7 @@ type
     gui_estrf_curs_k);                 {draw cursor}
   gui_estrf_t = set of gui_estrf_k_t;
 
+  gui_estr_p_t = ^gui_estr_t;
   gui_estr_t = record                  {low level edit string object}
     win: gui_win_t;                    {private window for all the drawing}
     tparm: rend_text_parms_t;          {saved copy of text control parameters}
@@ -209,8 +210,8 @@ type
     orig: boolean;                     {TRUE on draw string is original unedited}
     cmoved: boolean;                   {TRUE if cursor position changed}
     end;
-  gui_estr_p_t = ^gui_estr_t;
 
+  gui_enter_p_t = ^gui_enter_t;
   gui_enter_t = record                 {object for getting string response from user}
     win: gui_win_t;                    {private window for all the drawing}
     estr: gui_estr_t;                  {low level edit string object}
@@ -219,7 +220,6 @@ type
     err: string_var256_t;              {error message string}
     e1, e2: real;                      {bottom and top Y of edit string area}
     end;
-  gui_enter_p_t = gui_enter_t;
 
   gui_msgtype_k_t = (                  {types of user messages}
     gui_msgtype_info_k,                {informational, user must confirm}
@@ -242,7 +242,7 @@ type
     lab: string_var32_t;               {label string, may be empty}
     end;
 {
-******************************
+********************************************************************************
 *
 *   Routines
 }
