@@ -373,6 +373,33 @@ procedure gui_menu_ent_add_str (       {add entry to menu, takes regular string}
   in      id: sys_int_machine_t);      {ID returned when this entry picked}
   val_param; extern;
 
+procedure gui_menu_ent_next (          {select next sequential selectable menu entry}
+  in out  menu: gui_menu_t;            {menu object}
+  in out  sel_p: gui_menent_p_t);      {pointer to selected menu entry}
+  val_param; extern;
+
+procedure gui_menu_ent_pixel (         {find menu entry containing a pixel}
+  in out  menu: gui_menu_t;            {menu object}
+  in      x, y: sys_int_machine_t;     {pixel coordinate to test for}
+  out     ent_p: gui_menent_p_t);      {returned pointer to selected entry or NIL}
+  val_param; extern;
+
+procedure gui_menu_ent_prev (          {select previous sequential selectable entry}
+  in out  menu: gui_menu_t;            {menu object}
+  in out  sel_p: gui_menent_p_t);      {pointer to selected menu entry}
+  val_param; extern;
+
+procedure gui_menu_ent_refresh (       {refresh the graphics of a menu entry}
+  in out  menu: gui_menu_t;            {menu containing entry}
+  in      ent: gui_menent_t);          {descriptor of entry to draw}
+  val_param; extern;
+
+procedure gui_menu_ent_select (        {select new menu entry}
+  in out  menu: gui_menu_t;            {menu object}
+  in out  sel_p: gui_menent_p_t;       {pointer to old selected entry, updated}
+  in      new_p: gui_menent_p_t);      {pointer to new entry to select}
+  val_param; extern;
+
 procedure gui_menu_erase (             {erase menu, refresh what was underneath}
   in out  menu: gui_menu_t);           {menu object}
   val_param; extern;

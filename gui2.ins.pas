@@ -21,6 +21,11 @@ type
 {
 *   Routine declarations.
 }
+procedure gui_menu_ent_draw (          {draw one entry of a menu}
+  in out  menu: gui_menu_t;            {menu containing entry}
+  in      ent: gui_menent_t);          {descriptor of entry to draw}
+  val_param; extern;
+
 procedure gui_win_childpos_first (     {init child position to first child in list}
   in out  win: gui_win_t;              {window object}
   out     pos: gui_win_childpos_t);    {returned child list position object}

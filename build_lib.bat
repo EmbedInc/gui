@@ -16,6 +16,7 @@ call src_pas %srcdir% %libname%_events %1
 call src_pas %srcdir% %libname%_evhan %1
 call src_pas %srcdir% %libname%_key %1
 call src_pas %srcdir% %libname%_menu %1
+call src_pas %srcdir% %libname%_menu_ent %1
 call src_pas %srcdir% %libname%_message %1
 call src_pas %srcdir% %libname%_mmsg %1
 call src_pas %srcdir% %libname%_ticks_make %1

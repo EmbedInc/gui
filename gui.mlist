@@ -5,6 +5,7 @@ gui_events.obj
 gui_evhan.obj
 gui_key.obj
 gui_menu.obj
+gui_menu_ent.obj
 gui_message.obj
 gui_mmsg.obj
 gui_ticks_make.obj
