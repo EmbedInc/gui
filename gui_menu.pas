@@ -8,6 +8,7 @@ define gui_menu_delete;
 define gui_menu_place;
 define gui_menu_drawable;
 define gui_menu_draw;
+define gui_menu_clear;
 define gui_menu_erase;
 define gui_menu_select;
 %include 'gui2.ins.pas';
@@ -372,6 +373,32 @@ begin
     menu.win,                          {window to draw}
     0.0, menu.win.rect.dx,             {left and right draw limits}
     0.0, menu.win.rect.dy);            {bottom and top draw limits}
+  end;
+{
+********************************************************************************
+*
+*   Subroutine GUI_MENU_CLEAR (MENU)
+*
+*   De-select any selected entries of the menu, and redraw the menu as needed.
+*   The overall effect is to "clear" all selected entries.
+}
+procedure gui_menu_clear (             {de-select all selected entries of menu}
+  in out  menu: gui_menu_t);           {menu to clear selected entries of}
+  val_param;
+
+var
+  ent_p: gui_menent_p_t;               {pointer to current menu entry}
+
+begin
+  ent_p := menu.first_p;               {init to first entry in the menu}
+  while ent_p <> nil do begin          {scan the list of entries}
+    if gui_entflag_selected_k in ent_p^.flags then begin {this entry selected ?}
+      ent_p^.flags := ent_p^.flags     {de-select this entry}
+        - [gui_entflag_selected_k];
+      gui_menu_ent_refresh (menu, ent_p^); {redraw this entry}
+      end;
+    ent_p := ent_p^.next_p;            {to next entry in this menu}
+    end;                               {back to check this new entry}
   end;
 {
 ********************************************************************************

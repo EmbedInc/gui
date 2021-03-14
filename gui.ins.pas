@@ -342,6 +342,10 @@ function gui_key_names_id (            {like GUI_KEY_NAME_ID except plain string
   :rend_key_id_t;                      {RENDlib key ID, REND_KEY_NONE_K on not found}
   val_param; extern;
 
+procedure gui_menu_clear (             {de-select all selected entries of menu}
+  in out  menu: gui_menu_t);           {menu to clear selected entries of}
+  val_param; extern;
+
 procedure gui_menu_create (            {create and initialize menu object}
   out     menu: gui_menu_t;            {returned initialized menu object}
   in out  win: gui_win_t);             {window menu to appear in later}
