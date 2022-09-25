@@ -244,6 +244,9 @@ type
 
   gui_rendev_t = record                {RENDlib device state}
     id: rend_dev_id_t;                 {RENDlib device ID}
+    text_minpix: real;                 {min text size, pixels}
+    text_minfrx: real;                 {min text size, fraction X dimension}
+    text_minfry: real;                 {min text size, fraction Y dimension}
     tparm: rend_text_parms_t;          {text control parameters}
     vparm: rend_vect_parms_t;          {vector control parameters}
     pparm: rend_poly_parms_t;          {polygon control parameters}

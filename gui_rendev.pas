@@ -3,8 +3,8 @@
 module gui_rendev;
 define gui_rendev_def;
 define gui_rendev_setup;
-define gui_rendev_xf2d;
 define gui_rendev_resize;
+define gui_rendev_xf2d;
 %include 'gui2.ins.pas';
 {
 ********************************************************************************
@@ -20,6 +20,10 @@ procedure gui_rendev_def (             {set GUI lib RENDlib dev parameters to de
   val_param;
 
 begin
+  dev.text_minpix := 13.0;             {min text size in pixels}
+  dev.text_minfrx := 1.0 / 50.0;       {min text size, fraction of X dimension}
+  dev.text_minfry := 1.0 / 80.0;       {min text size, fraction of y dimension}
+
   dev.iterps := [                      {interpolants required by GUI library}
     rend_iterp_red_k,
     rend_iterp_grn_k,
@@ -47,8 +51,9 @@ var
 begin
   rend_set.enter_rend^;                {make sure in graphics mode}
 
+  rend_get.dev_id^ (dev.id);           {save RENDlib device ID}
+
   rend_get.text_parms^ (dev.tparm);    {get existing text control parameters}
-  dev.tparm.size := 1.0;
   dev.tparm.width := 0.72;
   dev.tparm.height := 1.0;
   dev.tparm.slant := 0.0;
@@ -56,7 +61,6 @@ begin
   dev.tparm.lspace := 0.7;
   dev.tparm.coor_level := rend_space_2d_k;
   dev.tparm.poly := false;
-  rend_set.text_parms^ (dev.tparm);    {set our new "base" text control parameters}
 
   rend_get.poly_parms^ (dev.pparm);    {get default polygon control parameters}
   dev.pparm.subpixel := true;
@@ -130,6 +134,79 @@ begin
   gui_events_init_key;                 {enable key events required by GUI library}
 
   rend_set.exit_rend^;                 {pop back to previous graphics mode level}
+  gui_rendev_resize (dev);             {adjust to current device dimensions}
+  end;
+{
+********************************************************************************
+*
+*   Subroutine GUI_RENDEV_RESIZE (DEV)
+*
+*   Adjust to the current RENDlib device size.  Any existing software bitmaps
+*   are deallocated.  New bitmaps are always allocated to match the current
+*   device size.
+}
+procedure gui_rendev_resize (          {adjust to RENDlib device size}
+  in out  dev: gui_rendev_t);          {GUI lib state about RENDlib device}
+  val_param;
+
+var
+  r: real;                             {scratch floating point}
+  ii: sys_int_machine_t;               {scratch integer}
+
+begin
+  rend_set.enter_rend^;                {make sure we are in graphics mode}
+  rend_set.dev_reconfig^;              {look at device parameters and reconfigure}
+  rend_get.image_size^ (               {get size and aspect ratio}
+    dev.pixx, dev.pixy,                {number of pixels in X and Y dimensions}
+    dev.aspect);                       {aspect ratio of whole device}
+{
+*   Deallocate any existing software bitmaps.
+}
+  if dev.bitmap_alloc then begin       {bitmaps previously allocated ?}
+    rend_set.dealloc_bitmap^ (dev.bitmap_rgba); {dealloc bitmap for RGBA components}
+    if dev.zsz > 0 then begin          {Z bitmap in use ?}
+      rend_set.dealloc_bitmap^ (dev.bitmap_z); {deallocate it}
+      end;
+    end;
+{
+*   Allocate new bitmaps to match the new device dimensions.
+}
+  rend_set.alloc_bitmap^ (             {allocate mandatory RGBA bitmap}
+    dev.bitmap_rgba,                   {bitmap handle}
+    dev.pixx, dev.pixy,                {bitmap dimensions in pixels}
+    dev.rgbasz,                        {min required bytes/pixel}
+    rend_scope_dev_k);                 {deallocate on device close}
+
+  if dev.zsz > 0 then begin            {Z bitmap required ?}
+    rend_set.alloc_bitmap^ (           {allocate the optional Z bitmap}
+      dev.bitmap_z,                    {bitmap handle}
+      dev.pixx, dev.pixy,              {bitmap dimensions in pixels}
+      dev.zsz,                         {min required bytes/pixel}
+      rend_scope_dev_k);               {deallocate on device close}
+    end;
+
+  dev.bitmap_alloc := true;            {indicate bitmaps are allocated}
+{
+*   Set the text size.  All the other text parameters are alread set in
+*   DEV.TPARM.
+}
+  r := max(                            {min text size according to all rules}
+    dev.text_minpix,                   {abs min, pixels}
+    dev.pixx * dev.text_minfrx,        {min as fraction of X dimension}
+    dev.pixy * dev.text_minfry);       {min as fraction of Y dimension}
+  ii := trunc(r + 0.999);              {round up to full integer}
+  if not odd(ii) then begin            {even number of pixels ?}
+    ii := ii + 1;                      {make odd, one row will be in center}
+    end;
+  dev.tparm.size := ii;                {set overall text size}
+  rend_set.text_parms^ (dev.tparm);    {update RENDlib state}
+
+  rend_set.exit_rend^;                 {pop back to previous graphics mode level}
+{
+*   Set up the 2D transform so that 0,0 is the lower left corner, X is to the
+*   right, Y up, and both are in units of pixels.
+}
+  gui_rendev_xf2d (dev);
   end;
 {
 ********************************************************************************
@@ -172,58 +249,4 @@ begin
 
   rend_set.xform_2d^ (xb, yb, ofs);    {set new RENDlib transform for this window}
   rend_set.exit_rend^;                 {pop back to previous graphics mode level}
-  end;
-{
-********************************************************************************
-*
-*   Subroutine GUI_RENDEV_RESIZE (DEV)
-*
-*   Adjust to the current RENDlib device size.  Any existing software bitmaps
-*   are deallocated.  New bitmaps are always allocated to match the current
-*   device size.
-}
-procedure gui_rendev_resize (          {adjust to RENDlib device size}
-  in out  dev: gui_rendev_t);          {GUI lib state about RENDlib device}
-  val_param;
-
-begin
-  rend_set.enter_rend^;                {make sure we are in graphics mode}
-  rend_set.dev_reconfig^;              {look at device parameters and reconfigure}
-  rend_get.image_size^ (               {get size and aspect ratio}
-    dev.pixx, dev.pixy,                {number of pixels in X and Y dimensions}
-    dev.aspect);                       {aspect ratio of whole device}
-{
-*   Deallocate any existing software bitmaps.
-}
-  if dev.bitmap_alloc then begin       {bitmaps previously allocated ?}
-    rend_set.dealloc_bitmap^ (dev.bitmap_rgba); {dealloc bitmap for RGBA components}
-    if dev.zsz > 0 then begin          {Z bitmap in use ?}
-      rend_set.dealloc_bitmap^ (dev.bitmap_z); {deallocate it}
-      end;
-    end;
-{
-*   Allocate new bitmaps to match the new device dimensions.
-}
-  rend_set.alloc_bitmap^ (             {allocate mandatory RGBA bitmap}
-    dev.bitmap_rgba,                   {bitmap handle}
-    dev.pixx, dev.pixy,                {bitmap dimensions in pixels}
-    dev.rgbasz,                        {min required bytes/pixel}
-    rend_scope_dev_k);                 {deallocate on device close}
-
-  if dev.zsz > 0 then begin            {Z bitmap required ?}
-    rend_set.alloc_bitmap^ (           {allocate the optional Z bitmap}
-      dev.bitmap_z,                    {bitmap handle}
-      dev.pixx, dev.pixy,              {bitmap dimensions in pixels}
-      dev.zsz,                         {min required bytes/pixel}
-      rend_scope_dev_k);               {deallocate on device close}
-    end;
-
-  dev.bitmap_alloc := true;            {indicate bitmaps are allocated}
-
-  rend_set.exit_rend^;                 {pop back to previous graphics mode level}
-{
-*   Set up the 2D transform so that 0,0 is the lower left corner, X is to the
-*   right, Y up, and both are in units of pixels.
-}
-  gui_rendev_xf2d (dev);
   end;
