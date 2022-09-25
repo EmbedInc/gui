@@ -8,6 +8,7 @@ gui_menu.obj
 gui_menu_ent.obj
 gui_message.obj
 gui_mmsg.obj
+gui_rendev.obj
 gui_ticks_make.obj
 gui_util.obj
 gui_win.obj

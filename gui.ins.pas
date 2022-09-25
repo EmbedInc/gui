@@ -241,6 +241,21 @@ type
     level: sys_int_machine_t;          {0 is major tick, higher values more minor}
     lab: string_var32_t;               {label string, may be empty}
     end;
+
+  gui_rendev_t = record                {RENDlib device state}
+    id: rend_dev_id_t;                 {RENDlib device ID}
+    tparm: rend_text_parms_t;          {text control parameters}
+    vparm: rend_vect_parms_t;          {vector control parameters}
+    pparm: rend_poly_parms_t;          {polygon control parameters}
+    bitmap_rgba: rend_bitmap_handle_t; {handle to RGBA software bitmap}
+    bitmap_z: rend_bitmap_handle_t;    {handle to Z software bitmap}
+    bitmap_alloc: boolean;             {bitmaps are allocated}
+    rgbasz: sys_int_machine_t;         {size of RGBA bitmap pixel, bytes}
+    zsz: sys_int_machine_t;            {size of Z bitmap pixel, bytes}
+    pixx, pixy: sys_int_machine_t;     {size of drawing device, pixels}
+    aspect: real;                      {width/height aspect ratio of whole device}
+    iterps: rend_iterps_t;             {mask of interpolants in use}
+    end;
 {
 ********************************************************************************
 *
@@ -481,6 +496,22 @@ function gui_mmsg_next (               {return parameters for next menu entry}
   out     shcut: string_index_t;       {NAME index for shortcut key, 0 = none}
   out     id: sys_int_machine_t)       {ID returned when this entry picked}
   :boolean;                            {TRUE on got entry info, closed on FALSE}
+  val_param; extern;
+
+procedure gui_rendev_def (             {set GUI lib RENDlib dev parameters to default}
+  out     dev: gui_rendev_t);          {returned set to default or benign values}
+  val_param; extern;
+
+procedure gui_rendev_resize (          {adjust to RENDlib device size}
+  in out  dev: gui_rendev_t);          {GUI lib state about RENDlib device}
+  val_param; extern;
+
+procedure gui_rendev_setup (           {setup RENDlib device, save related state}
+  in out  dev: gui_rendev_t);          {GUI lib state about the RENDlib device}
+  val_param; extern;
+
+procedure gui_rendev_xf2d (            {set GUI lib standard 2D transform on RENDlib dev}
+  in out  dev: gui_rendev_t);          {GUI lib state about the RENDlib device}
   val_param; extern;
 
 procedure gui_string_wrap (            {wrap string into multiple lines}
