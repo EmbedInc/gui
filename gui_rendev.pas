@@ -121,7 +121,9 @@ begin
       rend_set.iterp_on^ (it, true);   {enable this interpolant}
       end;
     end;
-
+{
+*   Other initialization.
+}
   rend_set.update_mode^ (rend_updmode_buffall_k); {buffer SW updates for speed sake}
 
   rend_set.min_bits_vis^ (24.0);       {try for high color resolution}
@@ -160,7 +162,7 @@ begin
     dev.pixx, dev.pixy,                {number of pixels in X and Y dimensions}
     dev.aspect);                       {aspect ratio of whole device}
 {
-*   Deallocate any existing software bitmaps.
+*   Deallocate any existing structures fixed to the old size.
 }
   if dev.bitmap_alloc then begin       {bitmaps previously allocated ?}
     rend_set.dealloc_bitmap^ (dev.bitmap_rgba); {dealloc bitmap for RGBA components}
@@ -187,7 +189,7 @@ begin
 
   dev.bitmap_alloc := true;            {indicate bitmaps are allocated}
 {
-*   Set the text size.  All the other text parameters are alread set in
+*   Set the text size.  All the other text parameters are already set in
 *   DEV.TPARM.
 }
   r := max(                            {min text size according to all rules}

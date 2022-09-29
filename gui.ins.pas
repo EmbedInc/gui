@@ -4,6 +4,10 @@
 const
   gui_childblock_size_k = 8;           {number of child windows per list block}
 
+  gui_mensel_cancel_k = -1;            {menu selection was cancelled by user}
+  gui_mensel_prev_k = -2;              {user wants to back to the previous menu}
+  gui_mensel_resize_k = -3;            {the window the menu is within got resized}
+
 type
   gui_win_p_t = ^gui_win_t;            {pointer to window object}
 
@@ -433,7 +437,7 @@ procedure gui_menu_place (             {set final menu placement and make drawab
 
 function gui_menu_select (             {get user menu selection}
   in out  menu: gui_menu_t;            {menu object}
-  out     id: sys_int_machine_t;       {selected entry ID, -1 cancelled, -2 prev}
+  out     id: sys_int_machine_t;       {1-N selected entry ID or GUI_MENSEL_xxx_K}
   out     sel_p: gui_menent_p_t)       {pnt to sel entry, NIL on cancel or delete}
   :boolean;                            {TRUE on selection made, FALSE on cancelled}
   val_param; extern;

@@ -435,20 +435,30 @@ begin
 *   unless the menu was configured for delete on selection, in which case
 *   SEL_P is returned NIL.
 *
-*   If no selection is made (menu cancelled) the function returns FALSE, ID
-*   is returned < 0, and SEL_P is returned NIL.  Some additional information is
-*   returned in ID:
+*   If no selection is made, the function returns FALSE, SEL_P is returned NIL,
+*   and ID is set to one of:
 *
-*     -1  -  Cancelled.  No more information available.
+*     GUI_MENSEL_CANCEL_K
 *
-*     -2  -  Cancelled but with desire to go back to the previous menu.
+*       Menu selection was cancelled by the user.
+*
+*     GUI_MENSEL_PREV_K
+*
+*       Menu selection was cancelled by the user, and the user wants to go back
+*       to the previous menu.
+*
+*     GUI_MENSEL_RESIZE_K
+*
+*       The window the menu was in was resized and the menu therefore needs to
+*       be redrawn.  The user may still be willing to continue with menu
+*       selection.
 *
 *   The EVHAN field in MENU is set according to how the RENDlib events were
 *   handled.
 }
 function gui_menu_select (             {get user menu selection}
   in out  menu: gui_menu_t;            {menu object}
-  out     id: sys_int_machine_t;       {selected entry ID, -1 cancelled, -2 prev}
+  out     id: sys_int_machine_t;       {1-N selected entry ID or GUI_MENSEL_xxx_K}
   out     sel_p: gui_menent_p_t)       {pnt to sel entry, NIL on cancel or delete}
   :boolean;                            {TRUE on selection made, FALSE on cancelled}
   val_param;
@@ -472,7 +482,8 @@ label
   got_initial_sel, event_next, selected, cancelled, leave;
 
 begin
-  cancelid := -1;                      {init to generic cancel reason}
+  gui_menu_select := false;            {init to no selection made}
+  cancelid := gui_mensel_cancel_k;     {init to generic cancel reason}
   menu.evhan := gui_evhan_did_k;       {init to events handled and all processed}
 
   rend_get.enter_level^ (rend_level);  {save initial graphics mode level}
@@ -589,6 +600,8 @@ event_next:
 *       event that we decide cancells the selection.  The event in EV will be
 *       pushed back onto the event queue unless EV.EV_TYPE has been set to
 *       REND_EV_NONE_K.
+*
+*   SEL_P is maintained pointing to the currently selected menu entry.
 }
   case ev.ev_type of                   {what kind of event is this ?}
 {
@@ -679,7 +692,7 @@ gui_menform_horiz_k: begin             {entries are in one horizontal row}
       end;
 gui_menform_vert_k: begin              {entries are in vertical list}
       ev.ev_type := rend_ev_none_k;    {indicate the event got used up}
-      cancelid := -2;                  {user wants to go back to previous menu}
+      cancelid := gui_mensel_prev_k;   {user wants to go back to previous menu}
       goto cancelled;                  {abort from this menu level}
       end;
     end;
@@ -786,6 +799,16 @@ rend_ev_wiped_rect_k: begin            {rectangular region needs redraw}
 {
 ************************************************
 }
+rend_ev_wiped_resize_k: begin          {window size changed}
+  id := gui_mensel_resize_k;           {cancelled due to parent window resize}
+  sel_p := nil;                        {indicate no selection made}
+  rend_event_push (ev);                {put WIPED_RESIZE event back on queue}
+  menu.evhan := gui_evhan_notme_k;     {indicate unhandled event pushed back}
+  goto leave;                          {leave without changing curr menu selection}
+  end;
+{
+************************************************
+}
 otherwise                              {any event type we don't explicitly handle}
     goto cancelled;
     end;                               {end of event type cases}
@@ -800,7 +823,6 @@ selected:
     end;
   id := sel_p^.id;                     {pass back ID of selected entry}
   gui_menu_select := true;             {indicate menu entry was selected}
-
 
   if gui_menflag_pickdel_k in menu.flags then begin {delete menu on pick ?}
     gui_menu_delete (menu);            {delete the menu}
@@ -821,8 +843,7 @@ selected:
 *   event queue.
 }
 cancelled:
-  gui_menu_select := false;            {indicate no menu entry was selected}
-  gui_menu_ent_select (menu, sel_p, nil); {make sure no entry is selected}
+  gui_menu_ent_select (menu, sel_p, nil); {de-select current entry, if any}
   id := cancelid;
 
   if ev.ev_type <> rend_ev_none_k then begin {we took an event for someone else ?}
