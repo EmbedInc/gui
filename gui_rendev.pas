@@ -21,8 +21,8 @@ procedure gui_rendev_def (             {set GUI lib RENDlib dev parameters to de
 
 begin
   dev.text_minpix := 13.0;             {min text size in pixels}
-  dev.text_minfrx := 1.0 / 50.0;       {min text size, fraction of X dimension}
-  dev.text_minfry := 1.0 / 80.0;       {min text size, fraction of y dimension}
+  dev.text_minfrx := 1.0 / 90.0;       {min text size, fraction of X dimension}
+  dev.text_minfry := 1.0 / 65.0;       {min text size, fraction of y dimension}
 
   dev.iterps := [                      {interpolants required by GUI library}
     rend_iterp_red_k,
