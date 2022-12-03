@@ -1,19 +1,19 @@
 {   Subroutine GUI_TICKS_MAKE (VMIN, VMAX, WID, HORIZ, MEM, FIRST_P)
 *
-*   Create a set of tick marks for labeling the displayed value range from
-*   VMIN to VMAX.  WID is the displayed length of the VMIN to VMAX range in
-*   the RENDlib TXDRAW coordinate space.  The current RENDlib text parameters
-*   must be set as they will be when the tick mark labels are drawn.
-*   FIRST_P will be returned pointing to the start of the newly created chain
-*   of tick mark descriptors.  The tick mark descriptors will be allocated
-*   statically from the MEM memory context.  HORIZ is TRUE if the labels
-*   will be written next to each other horizontally, and FALSE if the labels
-*   will be written above/below each other vertically.
+*   Create a set of tick marks for labeling the displayed value range from VMIN
+*   to VMAX.  WID is the displayed length of the VMIN to VMAX range in the
+*   RENDlib TXDRAW coordinate space.  The current RENDlib text parameters must
+*   be set as they will be when the tick mark labels are drawn.  FIRST_P will be
+*   returned pointing to the start of the newly created chain of tick mark
+*   descriptors.  The tick mark descriptors will be allocated statically from
+*   the MEM memory context.  HORIZ is TRUE if the labels will be written next to
+*   each other horizontally, and FALSE if the labels will be written above/below
+*   each other vertically.
 *
-*   This routine finds the major tick mark sequence that maximizes the number
-*   of labels without cramming them too close.  Only major tick marks (level 0)
-*   are labeled.  Major tick sequences are always one of the following
-*   relative values within each power of 10.
+*   This routine finds the major tick mark sequence that maximizes the number of
+*   labels without cramming them too close.  Only major tick marks (level 0) are
+*   labeled.  Major tick sequences are always one of the following relative
+*   values within each power of 10.
 *
 *     1, 2, 3, 4, ...
 *     2, 4, 8, 10, ...
@@ -72,14 +72,14 @@ var
 label
   loop_find_maj;
 {
-*************************************************************
+****************************************
 *
 *   Local subroutine MAKE_STRING (S, R, LOG10)
 *
 *   Set S to the label string to draw for the value R.  LOG10 indicates the
-*   power of 10 within which the label sequence exists.  This is used to
-*   decide which digits to the right of the decimal point, if any
-*   must be shown.  A LOG10 value of 0 is for 1, 1 for 10, -1 for .1, etc.
+*   power of 10 within which the label sequence exists.  This is used to decide
+*   which digits to the right of the decimal point, if any must be shown.  A
+*   LOG10 value of 0 is for 1, 1 for 10, -1 for .1, etc.
 }
 procedure make_string (                {make label string from value}
   in out  s: univ string_var_arg_t;    {the returned string}
@@ -107,7 +107,7 @@ begin
   if sys_error(stat) then s.len := 0;
   end;
 {
-*************************************************************
+****************************************
 *
 *   Start of main routine.
 }
@@ -141,12 +141,12 @@ begin
   log10 := trunc(r + 100.0) - 100;     {find starting base power of 10}
   seqi := 1;                           {init sequence index within this power of 10}
 {
-*   Back here to check each new major sequence for fit.  LOG10 is the power
-*   of 10 we are within, and SEQI is the index of the sequence to try.  The
+*   Back here to check each new major sequence for fit.  LOG10 is the power of
+*   10 we are within, and SEQI is the index of the sequence to try.  The
 *   sequence is accepted if all labels can be written next to each other with
 *   the minimum space in between.  If a sequence fails, the next larger sequence
-*   is tried.  This reduces the number of labels required, until eventually
-*   all labels should fit.
+*   is tried.  This reduces the number of labels required, until eventually all
+*   labels should fit.
 }
 loop_find_maj:
   logm := 10.0 ** log10;               {make base power of 10 multiplier}
@@ -186,9 +186,8 @@ loop_find_maj:
 
   ntick := seqm - seqmi;               {make number of ticks within range}
 {
-*   A sequence was found for which all the labels fit next to each other.
-*   NTICK is the number of ticks.  SEQMI is the SEQM value for the first
-*   tick.
+*   A sequence was found for which all the labels fit next to each other.  NTICK
+*   is the number of ticks.  SEQMI is the SEQM value for the first tick.
 }
   seqm := seqmi;
 
