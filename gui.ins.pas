@@ -150,15 +150,15 @@ type
     gui_menform_vert_k);               {vertical, like drop down menu}
 
   gui_menflag_k_t = (                  {independant flags governing a menu}
-    gui_menflag_canera_k,              {erase menu when menu cancelled}
-    gui_menflag_candel_k,              {delete menu when menu cancelled}
-    gui_menflag_pickera_k,             {erase menu when entry picked}
-    gui_menflag_pickdel_k,             {delete menu when entry picked}
-    gui_menflag_alt_k,                 {assume shortcut keys require ALT modifier}
-    gui_menflag_border_k,              {draw border around menu when displayed}
-    gui_menflag_fill_k,                {fill parent window to LR when menu drawn}
-    gui_menflag_sel1_k,                {init to first selectable entry on MENU_SELECT}
-    gui_menflag_selsel_k,              {init to first selected entry on MENU_SELECT}
+    gui_menflag_canera_k,              {erase menu when menu cancelled, def OFF}
+    gui_menflag_candel_k,              {delete menu when menu cancelled, def ON}
+    gui_menflag_pickera_k,             {erase menu when entry picked, def OFF}
+    gui_menflag_pickdel_k,             {delete menu when entry picked, def OFF}
+    gui_menflag_alt_k,                 {assume shortcut keys require ALT modifier, def OFF}
+    gui_menflag_border_k,              {draw border around menu when displayed, def ON}
+    gui_menflag_fill_k,                {fill parent window to LR when menu drawn, def OFF}
+    gui_menflag_sel1_k,                {init to first selectable entry on MENU_SELECT, def ON}
+    gui_menflag_selsel_k,              {init to first selected entry on MENU_SELECT, def ON}
     {
     *   The following flags must not be touched by applications.
     }
@@ -170,15 +170,15 @@ type
     mem_p: util_mem_context_p_t;       {pnt to mem context private to this menu}
     parent_p: gui_win_p_t;             {pointer to parent window}
     win: gui_win_t;                    {private window for this menu}
-    col_fore: rend_rgb_t;              {normal foreground color}
-    col_back: rend_rgb_t;              {normal background color}
-    col_fore_sel: rend_rgb_t;          {foreground color for selected entry}
-    col_back_sel: rend_rgb_t;          {background color for selected entry}
+    col_fore: rend_rgb_t;              {normal foreground color, def BLK}
+    col_back: rend_rgb_t;              {normal background color, def WHT}
+    col_fore_sel: rend_rgb_t;          {foreground color for selected entry, def WHT}
+    col_back_sel: rend_rgb_t;          {background color for selected entry, def BLU}
     first_p: gui_menent_p_t;           {points to first menu entry in chain}
     last_p: gui_menent_p_t;            {points to last menu entry in chain}
     tparm: rend_text_parms_t;          {text parameters for drawing the menu}
     flags: gui_menflags_t;             {set of individual flags}
-    form: gui_menform_k_t;             {menu layout format}
+    form: gui_menform_k_t;             {menu layout format, def VERT}
     evhan: gui_evhan_k_t;              {event useage result from last SELECT}
     end;
 
@@ -373,7 +373,7 @@ procedure gui_menu_create (            {create and initialize menu object}
   in out  win: gui_win_t);             {window menu to appear in later}
   val_param; extern;
 
-procedure gui_menu_delete (            {delete menu object, reclaim resources}
+procedure gui_menu_delete (            {delete menu if exists, deallocate resources}
   in out  menu: gui_menu_t);           {returned invalid}
   val_param; extern;
 
