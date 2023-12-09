@@ -1,34 +1,33 @@
 {   Module of routines that deal with messages specifically for supplying
-*   information about menu entries.  All routines take the menu entries
+*   information about menu entries.  All the routines here take the menu entries
 *   message object as their first argument.
 *
-*   A menu entry message supplies information about the entries of a menu.
-*   Such a message must adhere to a particular format within the message
-*   file constructs.  These messages are expected to expand into one per
-*   menu entry.  The .NFILL command must therefore be used at the start
-*   of each message to prevent line wrapping.  Each line read from the
-*   message must have the format:
+*   A menu entries message supplies information about the entries of a menu.
+*   Such a message must adhere to a particular format within the message file
+*   constructs.  These messages are expected to expand into one line per menu
+*   entry.  The .NFILL command must therefore be used at the start of each
+*   message to prevent line wrapping.  Each line read from the message must have
+*   the format:
 *
 *     <ID> <name> [<shortcut index>]
 *
-*   ID is the internal number used to identify this menu entry.  Menu
-*   entries are not identified by their position, but only by this ID.
-*   Therefore, the order of menu entries can be re-arranged, and the
-*   program will function normally as long as the IDs are rearranged
-*   along with the entries.
+*   ID is the internal number used to identify this menu entry, and is an
+*   integer >= 0.  Menu entries are not identified by their position, but only
+*   by this ID.  Therefore, the order of menu entries can be re-arranged, and
+*   the program will function normally as long as the IDs are rearranged to
+*   follow their entries.
 *
-*   NAME is the menu entry name to display to the user.  This is
-*   parsed as one token, so must be enclosed in quotes ("") or apostrophies
-*   () if it contains special characters, like spaces.
+*   NAME is the menu entry name to display to the user.  This is parsed as one
+*   token, so must be enclosed in quotes ("") or apostrophies ('') if it
+*   contains special characters, like spaces.
 *
-*   SHORTCUT INDEX is the character index into NAME for the shortcut
-*   character for this entry.  The shortcut character is typically
-*   underlined so that the user knows pressing that key will select
-*   that menu entry.  The index of the first character is 1.  The menu
-*   entry will have no shortcut key if this parameter is omitted or
-*   explicitly set to 0.  Note that SHORTCUT INDEX is the index into
-*   NAME as parsed.  This means enclosing quotes aren't counted, since
-*   they are not part of the name displayed to the user.
+*   SHORTCUT INDEX is the character index into NAME for the shortcut character
+*   for this entry.  The shortcut character is typically underlined so that the
+*   user knows pressing that key will select that menu entry.  The index of the
+*   first character is 1.  The menu entry will have no shortcut key if this
+*   parameter is omitted or explicitly set to 0.  Note that SHORTCUT INDEX is
+*   the index into NAME as parsed.  This means enclosing quotes aren't counted,
+*   since they are not part of the name displayed to the user.
 *
 *   For example:
 *
@@ -39,7 +38,7 @@
 *     Close File
 *
 *   with the "l" in "Close" being the shortcut character for this entry.  The
-*   internal program ID for this entry is 3.
+*   ID 3 will be returned when this menu entry is selected by the user.
 }
 module gui_mmsg;
 define gui_mmsg_init;
@@ -47,14 +46,13 @@ define gui_mmsg_close;
 define gui_mmsg_next;
 %include 'gui2.ins.pas';
 {
-*************************************************************************
+********************************************************************************
 *
 *   Subroutine GUI_MMSG_INIT (MMSG, SUBSYS, MSG, PARMS, N_PARMS)
 *
-*   Set up a new connection to a menu entries message.  MMSG is the
-*   returned menu entries message object.  The remaining arguments
-*   are the standard arguments for specifying a message and supplying
-*   it parameters.
+*   Set up a new connection to a menu entries message.  MMSG is the returned
+*   menu entries message object.  The remaining arguments are the standard
+*   arguments for specifying a message and supplying it parameters.
 }
 procedure gui_mmsg_init (              {init for reading a menu entries message}
   out     mmsg: gui_mmsg_t;            {returned menu entries message object}
@@ -87,9 +85,14 @@ begin
   mmsg.open := not sys_error(stat);    {indicate whether opened successfully}
   end;
 {
-*************************************************************************
+********************************************************************************
+*
+*   Subroutine GUI_MMSG_CLOSE (MMSG)
+*
+*   Close any connection to a menu entries message in MMSG.  Nothing is done if
+*   the connection was previously closed.
 }
-procedure gui_mmsg_close (             {close connection to menu entries message}
+procedure gui_mmsg_close (             {close menu entries msg object, if open}
   in out  mmsg: gui_mmsg_t);           {menu entries message object}
   val_param;
 
@@ -100,7 +103,18 @@ begin
     end;
   end;
 {
-*************************************************************************
+********************************************************************************
+*
+*   Function GUI_MMSG_NEXT (MMSG, NAME, SHCUT, ID)
+*
+*   Get the next menu entry specified in the menu entries message.  MMSG is the
+*   menu entries message object.  NAME, SHCUT, and ID are returned the menu
+*   entry name string, shortcut character index, and ID, respectively.
+*
+*   The function returns TRUE when returning with the information for a new
+*   menu entry.  The function returns FALSE on end of the menu entries message,
+*   if MMSG was previously closed, or any error.  MMSG is always returned closed
+*   when the function returns FALSE.
 }
 function gui_mmsg_next (               {return parameters for next menu entry}
   in out  mmsg: gui_mmsg_t;            {menu entries message object}

@@ -389,14 +389,22 @@ procedure gui_menu_ent_add (           {add new entry to end of menu}
   in out  menu: gui_menu_t;            {menu object}
   in      name: univ string_var_arg_t; {name to display to user for this choice}
   in      shcut: string_index_t;       {NAME index for shortcut key, 0 = none}
-  in      id: sys_int_machine_t);      {ID returned when this entry picked}
+  in      id: sys_int_machine_t);      {ID to return when entry picked, >= 0}
+  val_param; extern;
+
+procedure gui_menu_ent_add_mmsg (      {add entries from menu entries message}
+  in out  menu: gui_menu_t;            {menu to add entries to}
+  in      subsys: string;              {name of subsystem, used to find message file}
+  in      msg: string;                 {message name withing subsystem file}
+  in      parms: univ sys_parm_msg_ar_t; {array of parameter descriptors}
+  in      n_parms: sys_int_machine_t); {number of parameters in PARMS}
   val_param; extern;
 
 procedure gui_menu_ent_add_str (       {add entry to menu, takes regular string}
   in out  menu: gui_menu_t;            {menu object}
   in      name: string;                {name to display to user for this choice}
   in      shcut: string_index_t;       {NAME index for shortcut key, 0 = none}
-  in      id: sys_int_machine_t);      {ID returned when this entry picked}
+  in      id: sys_int_machine_t);      {ID to return when entry picked, >= 0}
   val_param; extern;
 
 procedure gui_menu_ent_next (          {select next sequential selectable menu entry}
@@ -485,7 +493,7 @@ function gui_message_str (             {display message and get user response}
   :gui_msgresp_k_t;                    {YES/NO/ABORT response from user}
   val_param; extern;
 
-procedure gui_mmsg_close (             {close connection to menu entries message}
+procedure gui_mmsg_close (             {close menu entries msg object, if open}
   in out  mmsg: gui_mmsg_t);           {menu entries message object}
   val_param; extern;
 

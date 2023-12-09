@@ -2,6 +2,7 @@
 }
 module gui_menu;
 define gui_menu_ent_add;
+define gui_menu_ent_add_mmsg;
 define gui_menu_ent_add_str;
 define gui_menu_ent_draw;
 define gui_menu_ent_refresh;
@@ -18,15 +19,17 @@ define gui_menu_ent_prev;
 *   Add a new entry to the end of the menu.  NAME is the name to display to the
 *   user for this entry.  SHCUT is the 1-N character position in NAME of the
 *   shortcut key for this entry.  This character will be displayed underlined.
-*   SHCUT of 0 indicates no shortcut key exists for this entry.  ID is an
-*   arbitrary integer value that will be returned to the application when this
-*   entry is selected.
+*   SHCUT of 0 indicates no shortcut key exists for this entry.
+*
+*   ID will be returned to the application when this entry is selected.  IDs
+*   must be 0 or more.  Negative IDs are used to indicate special conditions
+*   internally in the menu system.
 }
 procedure gui_menu_ent_add (           {add new entry to end of menu}
   in out  menu: gui_menu_t;            {menu object}
   in      name: univ string_var_arg_t; {name to display to user for this choice}
   in      shcut: string_index_t;       {NAME index for shortcut key, 0 = none}
-  in      id: sys_int_machine_t);      {ID returned when this entry picked}
+  in      id: sys_int_machine_t);      {ID to return when entry picked, >= 0}
   val_param;
 
 var
@@ -110,16 +113,53 @@ done_shcut:                            {all done dealing with shortcut key setup
 {
 ********************************************************************************
 *
+*   Subroutine GUI_MENU_ENT_ADD_MMSG (MENU, SUBSYS, MSG, PARMS, N_PARMS)
+*
+*   Add entries to a menu from a menu entries message.  The new entries will be
+*   added to the end of the menu MENU.  SUBSYS, MSG, PARMS, and N_PARMS are the
+*   standard message parameters.  See the header comments in the GUI_MMSG module
+*   for details of message entries messages.
+*
+*   The process of adding menu entries is silently aborted on any error.
+}
+procedure gui_menu_ent_add_mmsg (      {add entries from menu entries message}
+  in out  menu: gui_menu_t;            {menu to add entries to}
+  in      subsys: string;              {name of subsystem, used to find message file}
+  in      msg: string;                 {message name withing subsystem file}
+  in      parms: univ sys_parm_msg_ar_t; {array of parameter descriptors}
+  in      n_parms: sys_int_machine_t); {number of parameters in PARMS}
+  val_param;
+
+var
+  mmsg: gui_mmsg_t;                    {menu entries message object}
+  name: string_var132_t;               {menu entry name}
+  shcut: string_index_t;               {index of shortcut key within entry name}
+  id: sys_int_machine_t;               {menu entry ID}
+
+begin
+  name.max := size_char(name.str);     {init local var string}
+
+  gui_mmsg_init (                      {init for reading menu entries from message}
+    mmsg, subsys, msg, parms, n_parms);
+
+  while gui_mmsg_next (mmsg, name, shcut, id) do begin {once for each entry}
+    gui_menu_ent_add (menu, name, shcut, id); {add this entry to end of menu}
+    end;                               {back for entry from message}
+  end;
+{
+********************************************************************************
+*
 *   Subroutine GUI_MENU_ENT_ADD_STR (MENU, NAME, SHCUT, ID)
 *
 *   Just like GUI_MENU_ENT_ADD, above, except that NAME is a regular string
-*   instead of a var string.
+*   instead of a var string.  ID must be 0 or greater.  Negative IDs are
+*   reserved for internal use in the menu system.
 }
 procedure gui_menu_ent_add_str (       {add entry to menu, takes regular string}
   in out  menu: gui_menu_t;            {menu object}
   in      name: string;                {name to display to user for this choice}
   in      shcut: string_index_t;       {NAME index for shortcut key, 0 = none}
-  in      id: sys_int_machine_t);      {ID returned when this entry picked}
+  in      id: sys_int_machine_t);      {ID to return when entry picked, >= 0}
   val_param;
 
 var
