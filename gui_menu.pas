@@ -98,17 +98,20 @@ begin
 *   Subroutine GUI_MENU_DELETE (MENU)
 *
 *   Delete the menu.  The menu object is returned invalid.  If the menu is
-*   displayed, it will be erased.
+*   currently displayed, it will be erased.  Nothing is done if the menu was
+*   previously deleted.
 }
-procedure gui_menu_delete (            {delete menu object, reclaim resources}
-  in out  menu: gui_menu_t);           {returned invalid}
+procedure gui_menu_delete (            {delete menu if not already deleted}
+  in out  menu: gui_menu_t);           {returned deleted}
   val_param;
 
 begin
-  if gui_menflag_window_k in menu.flags then begin {private window exists for menu ?}
-    gui_win_delete (menu.win);         {erase and delete the window}
+  if menu.mem_p <> nil then begin      {menu exists ?}
+    if gui_menflag_window_k in menu.flags then begin {private window exists for menu ?}
+      gui_win_delete (menu.win);       {erase and delete the window}
+      end;
+    util_mem_context_del (menu.mem_p); {delete dynamic memory context for this menu}
     end;
-  util_mem_context_del (menu.mem_p);   {delete dynamic memory context for this menu}
   end;
 {
 ********************************************************************************

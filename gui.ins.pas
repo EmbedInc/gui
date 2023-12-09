@@ -373,8 +373,8 @@ procedure gui_menu_create (            {create and initialize menu object}
   in out  win: gui_win_t);             {window menu to appear in later}
   val_param; extern;
 
-procedure gui_menu_delete (            {delete menu if exists, deallocate resources}
-  in out  menu: gui_menu_t);           {returned invalid}
+procedure gui_menu_delete (            {delete menu if not already deleted}
+  in out  menu: gui_menu_t);           {returned deleted}
   val_param; extern;
 
 procedure gui_menu_draw (              {draw menu}
